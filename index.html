@@ -1,0 +1,98 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hero - Admin</title>
+  <link rel="stylesheet" href="./css/bootstrap.css">
+  <script src="./lib/jquery-1.12.2.js"></script>
+  <script src="./lib/template-web.js"></script>
+  <!-- <script src="./js/index.js"></script> -->
+  <style>
+    img {
+      width: 100px;
+    }
+  </style>
+  <!-- 定义模板 -->
+  <script id="templateHero" type="text/html">
+    {{each $data}}
+    <tr>
+      <td>{{$value.id}}</td>
+      <td>{{$value.name}}</td>
+      <td>{{$value.gender}}</td>
+      <td><img src="{{$value.img}}"></td>
+      <td>
+        <a href="./edit.html?id={{$value.id}}">修改</a>
+        <a href="javascript:;" onclick="del({{$value.id}})">删除</a>
+      </td>
+    </tr>
+    {{/each}}
+  </script>
+
+  <script>
+    //请求数据渲染模板
+    function showHtml() {
+      $.get("http://127.0.0.1:3001/getHeroList", (res) => {
+        console.log(res.data);
+        //调用模板方法
+        const templateHeroHtml = template("templateHero", res.data);
+        $("#tbody").html(templateHeroHtml);
+      });
+    }
+    //初始化的渲染
+    showHtml();
+
+    //删除方法
+    function del(id) {
+      //get请求方式
+      // $.get("http://127.0.0.1:3001/delHeroById", { id }, (res) => {
+      //   if (res.code === 200) {
+      //     if (confirm("你确定要删除吗？")) {
+      //       showHtml();
+      //     }
+      //   }
+      // })
+      //ajax请求方式
+      $.ajax({
+        type: "get",
+        url: "http://127.0.0.1:3001/delHeroById",
+        data: { id },
+        success: (res) => {
+          console.log(res);
+          if (res.code === 200) {
+            if (confirm("你确定要删除吗？")) {
+              showHtml();
+            }
+          }
+        }
+      });
+    }
+  </script>
+</head>
+
+<body>
+  <header>
+    <div class="page-header container">
+      <h1>王者荣耀 <small>英雄管理器</small></h1>
+    </div>
+  </header>
+  <div class="container hero-list">
+    <a class="btn btn-success pull-right" href="./add.html">添加英雄</a>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>编号</th>
+          <th>名称</th>
+          <th>性别</th>
+          <th>头像</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+
+      </tbody>
+    </table>
+  </div>
+
+</body>
+
+</html>

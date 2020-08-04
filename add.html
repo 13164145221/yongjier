@@ -1,0 +1,105 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hero - Admin</title>
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <script src="./lib/jquery-1.12.2.js"></script>
+
+    <script>
+        //添加内容
+        function add() {
+
+            //表单序列化
+            let result = $("#myform").serialize();
+            console.log(result);
+            // let name = $("#name").val();
+            // let gender = $("#man").prop("checked") ? $("#man").val() : $("#female").val();
+            // let img = $("#photo").prop("src");
+            // console.log(name, gender, img);
+            //post请求发送服务器
+            $.post("http://127.0.0.1:3001/addHero", result, (res) => {
+                if (res.code === 200) {
+                    alert("添加成功");
+                }
+            });
+            //添加成功后跳转页面
+            location.href = "./index.html";
+        }
+        //图片上传
+        function upload() {
+            //获取的文件的路径
+            let imgFile = $("#img")[0].files["0"];
+            //创建fromdata实例
+            let fromdata = new FormData();
+            //使用append方法添加属性
+            fromdata.append("avatar", imgFile);
+            //post请求服务器数据
+            $.post({
+                type: "post",
+                //路径
+                url: "http://127.0.0.1:3001/uploadFile",
+                //将二进制的图片路径发送给服务器
+                data: fromdata,
+                //FormData转二进制的不能 设置类型
+                contentType: false,
+                //不要处理请求数据
+                processData: false,
+                //请求之后的服务器的响应
+                success: (res) => {
+                    //显示图片
+                    $("#photo").prop("src", "http://127.0.0.1:3001/" + res.src);
+                    //上传图片的时候将图片的src属性给到隐藏的input标签，以便于表单序列化获取到这个路径
+                    $("#imgPathHidden").val($("#photo").prop("src"));
+                },
+                //格式
+                dataType: "json"
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="page-header container">
+            <h1>王者荣耀 <small>英雄管理器</small></h1>
+        </div>
+    </header>
+    <div class="container hero-list">
+        <form id='myform'>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <td>姓名：</td>
+                        <td><input type="text" name="name" id="name"></td>
+                    </tr>
+                    <tr>
+                        <td>性别：</td>
+                        <td>
+                            <input id="man" name="gender" value="男" type="radio" checked>
+                            <label for="man">男</label>
+                            <input name="gender" value="女" type="radio" id="female">
+                            <label for="female ">女</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>头像：</td>
+                        <td>
+                            <img src="./images/default.png" alt="" id="photo" width="100"
+                                style='border: 1px solid #ccc;margin-bottom: 5px;'>
+                            <input type="file" id="img" onchange="upload()">
+                            <!-- 声明一个隐藏的input储存src的值，让表单序列化serialize获取到 -->
+                            <input type="hidden" name="img" id="imgPathHidden">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="button" id="sub" value="新增" onclick="add()"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</body>
+
+</html>
